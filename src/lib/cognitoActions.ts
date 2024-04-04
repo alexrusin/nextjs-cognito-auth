@@ -6,6 +6,19 @@ export async function handleSignUp(
   return "Error creating an account";
 }
 
+export async function handleSendEmailVerificationCode(
+  prevState: { message: string; errorMessage: string },
+  formData: FormData
+) {
+  console.log("resending verification code");
+  const currentState = {
+    ...prevState,
+    message: "Code sent successfully",
+  };
+
+  return currentState;
+}
+
 export async function confirmSignUp(
   prevState: string | undefined,
   formData: FormData

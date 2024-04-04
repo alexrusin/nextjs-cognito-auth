@@ -12,6 +12,7 @@ import { Button } from "@/ui/button";
 import { useFormState, useFormStatus } from "react-dom";
 import { handleSignUp } from "@/lib/cognitoActions";
 import Link from "next/link";
+import SendVerificationCode from "./send-verification-code-form";
 
 export default function SignUpForm() {
   const [errorMessage, dispatch] = useFormState(handleSignUp, undefined);
@@ -82,7 +83,7 @@ export default function SignUpForm() {
             </div>
           </div>
         </div>
-        <LoginButton />
+        <SignUpButton />
         <div className="flex justify-center">
           <Link
             href="/auth/login"
@@ -110,7 +111,7 @@ export default function SignUpForm() {
   );
 }
 
-function LoginButton() {
+function SignUpButton() {
   const { pending } = useFormStatus();
 
   return (
