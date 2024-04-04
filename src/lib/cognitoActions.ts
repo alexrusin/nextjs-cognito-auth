@@ -4,7 +4,6 @@ import {
   confirmSignUp,
   signIn,
   signOut,
-  sendUserAttributeVerificationCode,
   resendSignUpCode,
 } from "aws-amplify/auth";
 import { getErrorMessage } from "@/utils/get-error-message";
