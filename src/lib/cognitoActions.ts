@@ -1,40 +1,101 @@
+import { redirect } from "next/navigation";
+import {
+  signUp,
+  confirmSignUp,
+  signIn,
+  signOut,
+  sendUserAttributeVerificationCode,
+  resendSignUpCode,
+} from "aws-amplify/auth";
+import { getErrorMessage } from "@/utils/get-error-message";
+
+enum UserType {
+  USER = "USER",
+  ADMIN = "ADMIN",
+}
+
 export async function handleSignUp(
   prevState: string | undefined,
   formData: FormData
 ) {
-  console.log("signing up");
-  return "Error creating an account";
+  try {
+    const { isSignUpComplete, userId, nextStep } = await signUp({
+      username: String(formData.get("email")),
+      password: String(formData.get("password")),
+      options: {
+        userAttributes: {
+          email: String(formData.get("email")),
+          name: String(formData.get("name")),
+          "custom:type": UserType.USER,
+        },
+        // optional
+        autoSignIn: true,
+      },
+    });
+  } catch (error) {
+    return getErrorMessage(error);
+  }
+  redirect("/auth/confirm-signup");
 }
 
 export async function handleSendEmailVerificationCode(
   prevState: { message: string; errorMessage: string },
   formData: FormData
 ) {
-  console.log("resending verification code");
-  const currentState = {
-    ...prevState,
-    message: "Code sent successfully",
-  };
+  let currentState;
+  try {
+    await resendSignUpCode({
+      username: String(formData.get("email")),
+    });
+    currentState = {
+      ...prevState,
+      message: "Code sent successfully",
+    };
+  } catch (error) {
+    currentState = {
+      ...prevState,
+      errorMessage: getErrorMessage(error),
+    };
+  }
 
   return currentState;
 }
 
-export async function confirmSignUp(
+export async function handleConfirmSignUp(
   prevState: string | undefined,
   formData: FormData
 ) {
-  console.log("confirming sign up");
-  return "Invalid code";
+  try {
+    const { isSignUpComplete, nextStep } = await confirmSignUp({
+      username: String(formData.get("email")),
+      confirmationCode: String(formData.get("code")),
+    });
+  } catch (error) {
+    return getErrorMessage(error);
+  }
+  redirect("/auth/login");
 }
 
 export async function handleSignIn(
   prevState: string | undefined,
   formData: FormData
 ) {
-  console.log("signing in");
-  return "Error logging in";
+  try {
+    const { isSignedIn, nextStep } = await signIn({
+      username: String(formData.get("email")),
+      password: String(formData.get("password")),
+    });
+  } catch (error) {
+    return getErrorMessage(error);
+  }
+  redirect("/dashboard");
 }
 
 export async function handleSignOut() {
-  console.log("signing out");
+  try {
+    await signOut();
+  } catch (error) {
+    console.log(getErrorMessage(error));
+  }
+  redirect("/auth/login");
 }
