@@ -1,5 +1,5 @@
 "use client";
-import { useAuthUser } from "@/app/hooks/useAuthUser";
+import useAuthUser from "@/app/hooks/use-auth-user";
 import {
   UserGroupIcon,
   HomeIcon,

@@ -8,7 +8,7 @@ type AuthUser = {
   userId: string;
 };
 
-export function useAuthUser() {
+export default function useAuthUser() {
   const [user, setUser] = useState<AuthUser>();
 
   useEffect(() => {
