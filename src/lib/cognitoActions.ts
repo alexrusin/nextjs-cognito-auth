@@ -8,11 +8,6 @@ import {
 } from "aws-amplify/auth";
 import { getErrorMessage } from "@/utils/get-error-message";
 
-enum UserType {
-  USER = "USER",
-  ADMIN = "ADMIN",
-}
-
 export async function handleSignUp(
   prevState: string | undefined,
   formData: FormData
@@ -25,7 +20,6 @@ export async function handleSignUp(
         userAttributes: {
           email: String(formData.get("email")),
           name: String(formData.get("name")),
-          "custom:type": UserType.USER,
         },
         // optional
         autoSignIn: true,
