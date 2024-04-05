@@ -19,7 +19,7 @@ export async function handleSendEmailVerificationCode(
   return currentState;
 }
 
-export async function confirmSignUp(
+export async function handleConfirmSignUp(
   prevState: string | undefined,
   formData: FormData
 ) {
