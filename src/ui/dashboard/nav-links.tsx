@@ -1,4 +1,5 @@
 "use client";
+import { useAuthUser } from "@/app/hooks/useAuthUser";
 import {
   UserGroupIcon,
   HomeIcon,
@@ -10,6 +11,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function NavLinks() {
+  const user = useAuthUser();
   const links = [
     { name: "Home", href: "/dashboard", icon: HomeIcon },
     {
@@ -22,7 +24,7 @@ export default function NavLinks() {
 
   const pathname = usePathname();
 
-  if (true) {
+  if (user && user.isAdmin) {
     links.push({
       name: "Admin Area",
       href: "/dashboard/admins",

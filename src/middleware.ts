@@ -1,25 +1,21 @@
 import { type NextRequest, NextResponse } from "next/server";
-import {
-  isAuthenticated,
-  isAuthenticatedAdmin,
-} from "./utils/amplify-server-utils";
+import { authenticatedUser } from "./utils/amplify-server-utils";
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
-  const isLoggedIn = await isAuthenticated(request, response);
-  const isLoggedInAdmin = await isAuthenticatedAdmin(request, response);
+  const user = await authenticatedUser({ request, response });
 
   const isOnDashboard = request.nextUrl.pathname.startsWith("/dashboard");
   const isOnAdminArea =
     request.nextUrl.pathname.startsWith("/dashboard/admins");
 
   if (isOnDashboard) {
-    if (!isLoggedIn)
+    if (!user)
       return NextResponse.redirect(new URL("/auth/login", request.nextUrl));
-    if (isOnAdminArea && !isLoggedInAdmin)
+    if (isOnAdminArea && !user.isAdmin)
       return NextResponse.redirect(new URL("/dashboard", request.nextUrl));
     return response;
-  } else if (isLoggedIn) {
+  } else if (user) {
     return NextResponse.redirect(new URL("/dashboard", request.nextUrl));
   }
 }

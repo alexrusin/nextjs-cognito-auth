@@ -1,11 +1,6 @@
 import { authConfig } from "@/app/amplify-cognito-config";
-import { createServerRunner } from "@aws-amplify/adapter-nextjs";
-import {
-  fetchAuthSession,
-  fetchUserAttributes,
-  getCurrentUser,
-} from "aws-amplify/auth/server";
-import type { NextRequest, NextResponse } from "next/server";
+import { NextServer, createServerRunner } from "@aws-amplify/adapter-nextjs";
+import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth/server";
 
 export const { runWithAmplifyServerContext } = createServerRunner({
   config: {
@@ -13,37 +8,26 @@ export const { runWithAmplifyServerContext } = createServerRunner({
   },
 });
 
-export async function isAuthenticated(
-  request: NextRequest,
-  response: NextResponse
-) {
+export async function authenticatedUser(context: NextServer.Context) {
   return await runWithAmplifyServerContext({
-    nextServerContext: { request, response },
+    nextServerContext: context,
     operation: async (contextSpec) => {
       try {
         const session = await fetchAuthSession(contextSpec);
-        return session.tokens !== undefined;
-      } catch (error) {
-        console.log(error);
-        return false;
-      }
-    },
-  });
-}
+        if (!session.tokens) {
+          return;
+        }
+        const user = {
+          ...(await getCurrentUser(contextSpec)),
+          isAdmin: false,
+        };
+        const groups = session.tokens.accessToken.payload["cognito:groups"];
+        // @ts-ignore
+        user.isAdmin = Boolean(groups && groups.includes("Admins"));
 
-export async function isAuthenticatedAdmin(
-  request: NextRequest,
-  response: NextResponse
-) {
-  return await runWithAmplifyServerContext({
-    nextServerContext: { request, response },
-    operation: async (contextSpec) => {
-      try {
-        const userAttributes = await fetchUserAttributes(contextSpec);
-        return userAttributes["custom:type"] === "ADMIN";
+        return user;
       } catch (error) {
         console.log(error);
-        return false;
       }
     },
   });

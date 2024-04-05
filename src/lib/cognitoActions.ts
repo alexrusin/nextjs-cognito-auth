@@ -5,13 +5,9 @@ import {
   signIn,
   signOut,
   resendSignUpCode,
+  autoSignIn,
 } from "aws-amplify/auth";
 import { getErrorMessage } from "@/utils/get-error-message";
-
-enum UserType {
-  USER = "USER",
-  ADMIN = "ADMIN",
-}
 
 export async function handleSignUp(
   prevState: string | undefined,
@@ -25,7 +21,6 @@ export async function handleSignUp(
         userAttributes: {
           email: String(formData.get("email")),
           name: String(formData.get("name")),
-          "custom:type": UserType.USER,
         },
         // optional
         autoSignIn: true,
@@ -69,6 +64,7 @@ export async function handleConfirmSignUp(
       username: String(formData.get("email")),
       confirmationCode: String(formData.get("code")),
     });
+    await autoSignIn();
   } catch (error) {
     return getErrorMessage(error);
   }
