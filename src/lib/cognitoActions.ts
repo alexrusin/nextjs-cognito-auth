@@ -102,3 +102,70 @@ export async function handleSignOut() {
   }
   redirect("/auth/login");
 }
+
+export async function handleUpdateUserAttribute(
+  prevState: string,
+  formData: FormData
+) {
+  let attributeKey = "name";
+  const name = formData.get("name");
+  const currentName = formData.get("current_name");
+
+  const email = formData.get("email");
+  const currentEmail = formData.get("current_email");
+
+  if (formData.get("email")) {
+    attributeKey = "email";
+    if (email === currentEmail) {
+      return "";
+    }
+    if (String(email).length < 4) {
+      return "error";
+    }
+
+    return "Confirmation code was sent to ";
+  }
+
+  if (name === currentName) {
+    return "";
+  }
+
+  if (String(name).length < 4) {
+    return "error";
+  }
+
+  return "success";
+}
+
+export async function handleUpdatePassword(
+  prevState: "success" | "error" | undefined,
+  formData: FormData
+) {
+  const currentPassword = formData.get("current_password");
+  const newPassword = formData.get("new_password");
+
+  if (currentPassword === newPassword) {
+    return;
+  }
+  if (String(newPassword).length < 6) {
+    return "error";
+  }
+
+  return "success";
+}
+
+export async function handleConfirmUserAttribute(
+  prevState: "success" | "error" | undefined,
+  formData: FormData
+) {
+  const code = formData.get("code");
+
+  if (!code) {
+    return;
+  }
+  if (String(code).length < 6) {
+    return "error";
+  }
+
+  return "success";
+}

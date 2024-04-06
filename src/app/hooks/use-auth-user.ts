@@ -1,15 +1,12 @@
-import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
+import {
+  fetchAuthSession,
+  fetchUserAttributes,
+  getCurrentUser,
+} from "aws-amplify/auth";
 import { useEffect, useState } from "react";
 
-type AuthUser = {
-  isAdmin: boolean;
-  signInDetails?: Record<string, any>;
-  username: string;
-  userId: string;
-};
-
 export default function useAuthUser() {
-  const [user, setUser] = useState<AuthUser>();
+  const [user, setUser] = useState<Record<string, any>>();
 
   useEffect(() => {
     async function getUser() {
@@ -19,6 +16,7 @@ export default function useAuthUser() {
       }
       const user = {
         ...(await getCurrentUser()),
+        ...(await fetchUserAttributes()),
         isAdmin: false,
       };
       const groups = session.tokens.accessToken.payload["cognito:groups"];
