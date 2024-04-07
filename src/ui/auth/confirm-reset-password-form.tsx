@@ -20,7 +20,7 @@ export default function ConfirmResetPasswordForm() {
     <form action={dispatch} className="space-y-3">
       <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
         <h1 className={`${lusitana.className} mb-3 text-2xl`}>
-          Please enter your email to get confirmation code.
+          Reset password.
         </h1>
         <div className="w-full">
           <div>

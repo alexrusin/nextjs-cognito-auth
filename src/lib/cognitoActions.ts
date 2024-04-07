@@ -10,6 +10,8 @@ import {
   type UpdateUserAttributeOutput,
   confirmUserAttribute,
   updatePassword,
+  resetPassword,
+  confirmResetPassword,
 } from "aws-amplify/auth";
 import { getErrorMessage } from "@/utils/get-error-message";
 
@@ -206,9 +208,7 @@ export async function handleResetPassword(
   formData: FormData
 ) {
   try {
-    if (!formData.get("email")) {
-      throw new Error("Error sending code");
-    }
+    await resetPassword({ username: String(formData.get("email")) });
   } catch (error) {
     return getErrorMessage(error);
   }
@@ -220,9 +220,11 @@ export async function handleConfirmResetPassword(
   formData: FormData
 ) {
   try {
-    if (!formData.get("email")) {
-      throw new Error("Error sending code");
-    }
+    await confirmResetPassword({
+      username: String(formData.get("email")),
+      confirmationCode: String(formData.get("code")),
+      newPassword: String(formData.get("password")),
+    });
   } catch (error) {
     return getErrorMessage(error);
   }
