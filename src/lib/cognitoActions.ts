@@ -200,3 +200,31 @@ export async function handleConfirmUserAttribute(
 
   return "success";
 }
+
+export async function handleResetPassword(
+  prevState: string | undefined,
+  formData: FormData
+) {
+  try {
+    if (!formData.get("email")) {
+      throw new Error("Error sending code");
+    }
+  } catch (error) {
+    return getErrorMessage(error);
+  }
+  redirect("/auth/reset-password/confirm");
+}
+
+export async function handleConfirmResetPassword(
+  prevState: string | undefined,
+  formData: FormData
+) {
+  try {
+    if (!formData.get("email")) {
+      throw new Error("Error sending code");
+    }
+  } catch (error) {
+    return getErrorMessage(error);
+  }
+  redirect("/auth/login");
+}
