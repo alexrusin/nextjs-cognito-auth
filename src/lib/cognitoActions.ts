@@ -6,6 +6,10 @@ import {
   signOut,
   resendSignUpCode,
   autoSignIn,
+  updateUserAttribute,
+  type UpdateUserAttributeOutput,
+  confirmUserAttribute,
+  updatePassword,
 } from "aws-amplify/auth";
 import { getErrorMessage } from "@/utils/get-error-message";
 
@@ -108,33 +112,46 @@ export async function handleUpdateUserAttribute(
   formData: FormData
 ) {
   let attributeKey = "name";
-  const name = formData.get("name");
-  const currentName = formData.get("current_name");
-
-  const email = formData.get("email");
-  const currentEmail = formData.get("current_email");
+  let attributeValue;
+  let currentAttributeValue;
 
   if (formData.get("email")) {
     attributeKey = "email";
-    if (email === currentEmail) {
-      return "";
-    }
-    if (String(email).length < 4) {
-      return "error";
-    }
-
-    return "Confirmation code was sent to ";
+    attributeValue = formData.get("email");
+    currentAttributeValue = formData.get("current_email");
+  } else {
+    attributeValue = formData.get("name");
+    currentAttributeValue = formData.get("current_name");
   }
 
-  if (name === currentName) {
+  if (attributeValue === currentAttributeValue) {
     return "";
   }
 
-  if (String(name).length < 4) {
+  try {
+    const output = await updateUserAttribute({
+      userAttribute: {
+        attributeKey: String(attributeKey),
+        value: String(attributeValue),
+      },
+    });
+    return handleUpdateUserAttributeNextSteps(output);
+  } catch (error) {
+    console.log(error);
     return "error";
   }
+}
 
-  return "success";
+function handleUpdateUserAttributeNextSteps(output: UpdateUserAttributeOutput) {
+  const { nextStep } = output;
+
+  switch (nextStep.updateAttributeStep) {
+    case "CONFIRM_ATTRIBUTE_WITH_CODE":
+      const codeDeliveryDetails = nextStep.codeDeliveryDetails;
+      return `Confirmation code was sent to ${codeDeliveryDetails?.deliveryMedium}.`;
+    case "DONE":
+      return "success";
+  }
 }
 
 export async function handleUpdatePassword(
@@ -147,7 +164,14 @@ export async function handleUpdatePassword(
   if (currentPassword === newPassword) {
     return;
   }
-  if (String(newPassword).length < 6) {
+
+  try {
+    await updatePassword({
+      oldPassword: String(currentPassword),
+      newPassword: String(newPassword),
+    });
+  } catch (error) {
+    console.log(error);
     return "error";
   }
 
@@ -163,7 +187,14 @@ export async function handleConfirmUserAttribute(
   if (!code) {
     return;
   }
-  if (String(code).length < 6) {
+
+  try {
+    await confirmUserAttribute({
+      userAttributeKey: "email",
+      confirmationCode: String(code),
+    });
+  } catch (error) {
+    console.log(error);
     return "error";
   }
 
